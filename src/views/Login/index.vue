@@ -82,7 +82,13 @@ export default {
           } else {
             localStorage.removeItem(FORM_KEY)
           }
-          this.$router.push('/')
+          // 实现哪个页面退出的，登录时继续跳转到对应的页面
+          // console.log(this.$route.query.redirect)
+          if (this.$route.query.redirect) {
+            this.$router.push(this.$route.query.redirect)
+          } else {
+            this.$router.push('/')
+          }
         } catch (error) {
           console.dir(error)
           this.$message.error(error.response.data.msg)

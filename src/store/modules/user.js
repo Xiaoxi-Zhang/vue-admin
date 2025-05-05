@@ -1,5 +1,5 @@
 import { loginAPI } from '@/api/user.js'
-import { getToken, setToken } from '@/utils/auth.js'
+import { getToken, removeToken, setToken } from '@/utils/auth.js'
 
 export default {
   // 命名空间
@@ -12,6 +12,12 @@ export default {
     setToken(state, newToken) {
       state.token = newToken
       setToken(newToken) // 调用设置token的方法,存到cookie中
+    },
+    removeToken(state) {
+      // 清空vuex中的token
+      state.token = ''
+      // 清空cookie中的token
+      removeToken()
     }
   },
   actions: {
