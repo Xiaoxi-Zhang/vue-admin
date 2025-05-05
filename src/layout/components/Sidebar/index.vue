@@ -27,12 +27,12 @@ import SidebarItem from './SidebarItem'
 export default {
   components: { SidebarItem, Logo },
   computed: {
-    routes () {
+    routes() {
       // this.$router.options.routes 获取的是创建路由对象时传入的路由规则
       // console.log(this.$router.options.routes)
       return this.$router.options.routes
     },
-    activeMenu () {
+    activeMenu() {
       const route = this.$route
       const { meta, path } = route
       // if set path, the sidebar will highlight the path you set

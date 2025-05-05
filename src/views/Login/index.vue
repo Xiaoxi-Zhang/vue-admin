@@ -3,27 +3,32 @@
     <div class="bg" />
     <div class="box">
       <div class="title">智慧园区-登录</div>
-      <el-form ref="form">
+      <!-- 表单校验四要素
+       1. el-form :model 对应的值 是表单对应的数据对象
+       2. el-form :rules 对应的校验规则
+       3. el-form-item  prop 表示要校验哪个字段
+       4. 表单元素（el-input、el-checkbox...） v-model -->
+      <el-form ref="form" :model="loginForm" :rules="rules">
         <el-form-item
           label="账号"
           prop="username"
         >
-          <el-input />
+          <el-input v-model="loginForm.username" />
         </el-form-item>
 
         <el-form-item
           label="密码"
           prop="password"
         >
-          <el-input />
+          <el-input v-model="loginForm.password" show-password />
         </el-form-item>
 
         <el-form-item prop="remember">
-          <el-checkbox>记住我</el-checkbox>
+          <el-checkbox v-model="rememberMe">记住我</el-checkbox>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" class="login_btn">登录</el-button>
+          <el-button type="primary" class="login_btn" @click="handleLogin">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -31,9 +36,60 @@
 </template>
 
 <script>
-
+import { FORM_KEY } from '@/constants/KEY'
 export default {
-  name: 'Login'
+  name: 'Login',
+  data() {
+    return {
+      loginForm: {
+        username: '',
+        password: ''
+      },
+      rememberMe: false,
+      rules: {
+        username: [
+          // trigger: ['blur', 'change'] 失焦和内容改变都会触发校验
+          { required: true, message: '用户名不能为空', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '密码不能为空', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  created() {
+    const loginData = localStorage.getItem(FORM_KEY)
+    // 先判断有没有存储用户信息
+    if (loginData) {
+      const { username, password } = JSON.parse(loginData)
+      this.loginForm.username = username
+      this.loginForm.password = password
+    }
+  },
+  methods: {
+    handleLogin() {
+      this.$refs.form.validate(async(vaild) => {
+        if (!vaild) return
+        // const res = await loginAPI(this.loginForm)
+        // console.log(res)
+        // this.$store.commit('user/setToken', res.data.token)
+        try {
+          await this.$store.dispatch('user/loginAction', this.loginForm)
+          // 登录成功后，判断是否记住我
+          if (this.rememberMe) {
+            // 记住我，存储到 localStorage
+            localStorage.setItem(FORM_KEY, JSON.stringify(this.loginForm))
+          } else {
+            localStorage.removeItem(FORM_KEY)
+          }
+          this.$router.push('/')
+        } catch (error) {
+          console.dir(error)
+          this.$message.error(error.response.data.msg)
+        }
+      })
+    }
+  }
 
 }
 

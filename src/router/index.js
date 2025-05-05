@@ -139,7 +139,7 @@ const createRouter = () =>
 const router = createRouter()
 
 // 重置路由方法
-export function resetRouter () {
+export function resetRouter() {
   // 得到一个全新的router实例对象
   const newRouter = createRouter()
   // 使用新的路由记录覆盖掉老的路由记录

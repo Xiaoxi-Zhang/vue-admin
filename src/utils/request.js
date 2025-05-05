@@ -1,4 +1,5 @@
 import axios from 'axios'
+import store from '@/store/index.js' // 引入store对象
 
 // axios.create() 创建一个 axios 实例 可以通过实例来请求接口
 const service = axios.create({
@@ -14,6 +15,10 @@ service.interceptors.request.use(
   config => {
     // config 携带的就是请求信息，并且return不能省略
     // 这个函数通常 配置请求头信息，携带token
+    const token = store.state.user.token // 获取token
+    if (token) {
+      config.headers.Authorization = token
+    }
     return config
   },
   error => {
