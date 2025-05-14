@@ -45,7 +45,7 @@ export default {
         username: '',
         password: ''
       },
-      rememberMe: false,
+      rememberMe: true,
       rules: {
         username: [
           // trigger: ['blur', 'change'] 失焦和内容改变都会触发校验
@@ -73,30 +73,24 @@ export default {
         // const res = await loginAPI(this.loginForm)
         // console.log(res)
         // this.$store.commit('user/setToken', res.data.token)
-        try {
-          await this.$store.dispatch('user/loginAction', this.loginForm)
-          // 登录成功后，判断是否记住我
-          if (this.rememberMe) {
-            // 记住我，存储到 localStorage
-            localStorage.setItem(FORM_KEY, JSON.stringify(this.loginForm))
-          } else {
-            localStorage.removeItem(FORM_KEY)
-          }
-          // 实现哪个页面退出的，登录时继续跳转到对应的页面
-          // console.log(this.$route.query.redirect)
-          if (this.$route.query.redirect) {
-            this.$router.push(this.$route.query.redirect)
-          } else {
-            this.$router.push('/')
-          }
-        } catch (error) {
-          console.dir(error)
-          this.$message.error(error.response.data.msg)
+        await this.$store.dispatch('user/loginAction', this.loginForm)
+        // 登录成功后，判断是否记住我
+        if (this.rememberMe) {
+          // 记住我，存储到 localStorage
+          localStorage.setItem(FORM_KEY, JSON.stringify(this.loginForm))
+        } else {
+          localStorage.removeItem(FORM_KEY)
+        }
+        // 实现哪个页面退出的，登录时继续跳转到对应的页面
+        // console.log(this.$route.query.redirect)
+        if (this.$route.query.redirect) {
+          this.$router.push(this.$route.query.redirect)
+        } else {
+          this.$router.push('/')
         }
       })
     }
   }
-
 }
 
 </script>

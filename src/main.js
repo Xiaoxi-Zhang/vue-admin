@@ -17,6 +17,11 @@ import router from './router'
 
 // 注册svg
 import '@/icons'
+
+// 导入permission.js
+// import 除了导入某个成员之外，还可以执行导入的文件
+import '@/permission'
+
 // 结果：把element-ui中导出的所有组件注册成全局组件
 Vue.use(ElementUI)
 

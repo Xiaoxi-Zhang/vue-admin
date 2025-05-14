@@ -1,5 +1,7 @@
 import axios from 'axios'
 import store from '@/store/index.js' // 引入store对象
+import { Message } from 'element-ui'
+import router from '@/router'
 
 // axios.create() 创建一个 axios 实例 可以通过实例来请求接口
 const service = axios.create({
@@ -39,6 +41,14 @@ service.interceptors.response.use(
     // 响应是啊比，状态码4xx 5xx的情况
     // error 错误信息
     // 可以做 统一的错误处理
+    // 在这里判断token是否过期
+    if (error.response.status === 401) {
+      // token过期
+      // 清空token ，跳转到登录页
+      store.commit('user/removeToken')
+      router.push('/login')
+    }
+    Message.error(error.response.data.msg) // 提示错误信息
     return Promise.reject(error)
   }
 )

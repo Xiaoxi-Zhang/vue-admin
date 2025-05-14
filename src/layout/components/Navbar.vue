@@ -4,7 +4,7 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <!-- 用户名称 -->
-          <span class="name">黑马管理员</span>
+          <span class="name">超级管理员</span>
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
@@ -13,6 +13,7 @@
           <a target="_blank">
             <el-dropdown-item> 项目地址 </el-dropdown-item>
           </a>
+          <!-- 组件不能够绑定原生事件 -->
           <el-dropdown-item divided @click.native="logout">
             <span style="display: block">退出登录</span>
           </el-dropdown-item>
