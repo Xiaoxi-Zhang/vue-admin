@@ -3,8 +3,8 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">企业名称：</div>
-      <el-input clearable placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" @clear="search" />
+      <el-button type="primary" @click="search">查询</el-button>
     </div>
     <div class="create-container">
       <el-button type="primary">添加企业</el-button>
@@ -44,6 +44,7 @@
 
 <script>
 import { getEnterpriseListAPI } from '@/api/enterprise'
+
 export default {
   name: 'EnterPrise',
   data() {
@@ -61,6 +62,12 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    // 点击查询按钮
+    search() {
+      // 重置page为1
+      this.params.page = 1
+      this.getEnterpriseList()
+    },
     // 计算序号
     indexMethod(index) {
       return (this.params.page - 1) * this.params.pageSize + index + 1
