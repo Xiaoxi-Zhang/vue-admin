@@ -35,7 +35,18 @@
             <el-form-item label="联系电话" prop="name">
               <el-input v-model="addForm.contactNumber" />
             </el-form-item>
-            <el-form-item label="营业执照" prop="name" />
+            <el-form-item label="营业执照" prop="name">
+              <!-- action 是一个必传属性，配置的是上传文件的路径。但是不灵活，一般不用 -->
+              <!-- action 即使不用，也得配置。如果没配置上传路径，需要用#代替 -->
+              <el-upload
+                class="upload-demo"
+                action="#"
+                :http-request="uploadImage"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传.png .jpg .jpeg文件，且不超过5M</div>
+              </el-upload>
+            </el-form-item>
           </el-form>
         </div>
       </div>
@@ -51,6 +62,7 @@
 
 <script>
 import { getIndustryListAPI } from '@/api/enterprise'
+import { uploadFileAPI } from '@/api/common'
 
 export default {
   data() {
@@ -72,6 +84,18 @@ export default {
     this.getIndustryList()
   },
   methods: {
+    // 上传文件
+    async uploadImage({ file }) {
+      const formData = new FormData()
+      // formData追加数据，使用append方法
+      formData.append('file', file)
+      formData.append('type', 1) // 1表示营业执照
+      const res = await uploadFileAPI(formData)
+      // console.log(res)
+      this.addForm.businessLicenseId = res.data.id // 获取到营业执照id
+      this.addForm.businessLicenseUrl = res.data.url // 获取到营业执照url
+    },
+    // 获取行业列表
     async getIndustryList() {
       const res = await getIndustryListAPI()
       // console.log(res)
