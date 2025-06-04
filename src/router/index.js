@@ -48,6 +48,10 @@ export const routes = [
       }
     ]
   },
+  {
+    path: '/addEnterprise',
+    component: () => import('@/views/Park/Enterprise/AddEnterprise')
+  },
 
   {
     path: '/parking',
