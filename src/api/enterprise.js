@@ -23,3 +23,17 @@ export function getIndustryListAPI() {
     url: '/park/industry'
   })
 }
+
+/**
+ * 添加企业
+ * @export
+ * @param {*} data 参数
+ * @return {*}
+ */
+export function addEnterpriseAPI(data) {
+  return request({
+    url: '/park/enterprise',
+    method: 'POST',
+    data
+  })
+}
