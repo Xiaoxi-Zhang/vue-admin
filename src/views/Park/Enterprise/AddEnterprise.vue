@@ -4,7 +4,7 @@
       <div class="left">
         <span class="arrow" @click="$router.back()"><i class="el-icon-arrow-left" />返回</span>
         <span>|</span>
-        <span>添加企业</span>
+        <span>{{ id?"编辑企业":"添加企业" }}</span>
       </div>
       <div class="right">
         超级管理员
@@ -105,6 +105,11 @@ export default {
           { required: true, message: '营业执照为必填项', trigger: 'blur' }
         ]
       }
+    }
+  },
+  computed: {
+    id() {
+      return this.$route.query.id // 获取路由参数id
     }
   },
   created() {
