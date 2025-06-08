@@ -35,7 +35,12 @@ service.interceptors.response.use(
   response => {
     // 执行时机：响应成功 状态为2xx的情况
     // return 不能省略，response.data 是服务器返回的原始数据
-    return response.data
+    if (response.data.code !== 10000) {
+      Message.error(response.data.msg)
+      return Promise.reject(response.data) // 如果code不是10000，说明请求失败，返回一个失败的Promise
+    } else {
+      return response.data
+    }
   },
   error => {
     // 响应是啊比，状态码4xx 5xx的情况

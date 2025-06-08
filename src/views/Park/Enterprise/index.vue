@@ -24,7 +24,7 @@
             <el-button size="mini" type="text">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="toEditPage(scope.row.id)">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delEnterprise(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { getEnterpriseListAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI } from '@/api/enterprise'
 
 export default {
   name: 'EnterPrise',
@@ -62,6 +62,21 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    // 删除企业
+    delEnterprise(id) {
+      // console.log(id)
+      this.$confirm('您确定要删除该企业吗？', '温馨提示').then(async() => {
+        await deleteEnterpriseAPI(id)
+        this.$message.success('删除成功')
+        if (this.list.length === 1 && this.params.page > 1) {
+          // 如果删除后当前页没有数据了，且当前页大于1，则将页码减1
+          this.params.page--
+        }
+        this.getEnterpriseList()
+      }).catch(() => {
+
+      })
+    },
     toEditPage(id) {
       // console.log(id)
       this.$router.push({

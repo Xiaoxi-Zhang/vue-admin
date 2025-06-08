@@ -49,6 +49,7 @@
                 <el-button size="small" type="primary">点击上传</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传.png .jpg .jpeg文件，且不超过5M</div>
               </el-upload>
+              <img v-if="id" :src="addForm.businessLicenseUrl" style="width:100px">
             </el-form-item>
           </el-form>
         </div>
@@ -64,7 +65,7 @@
 </template>
 
 <script>
-import { getIndustryListAPI, addEnterpriseAPI } from '@/api/enterprise'
+import { getIndustryListAPI, addEnterpriseAPI, getEnterpriseDetailAPI, updateEnterpriseAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
 
 export default {
@@ -114,15 +115,32 @@ export default {
   },
   created() {
     this.getIndustryList()
+    if (this.id) {
+      this.getEnterpriseDetail()
+    }
   },
   methods: {
+    // 获取企业详情
+    async getEnterpriseDetail() {
+      const res = await getEnterpriseDetailAPI(this.id)
+      // console.log(res)
+      this.addForm = res.data // 将获取到的企业详情赋值给addForm
+    },
     // 确认添加
     confirmAdd() {
       this.$refs.ruleForm.validate(async(flag) => {
         if (!flag) return
-        // console.log('可以请求接口')
-        await addEnterpriseAPI(this.addForm)
-        this.$message.success('企业添加成功')
+        if (this.id) {
+          delete this.addForm.businessLicenseName
+          delete this.addForm.industryName
+          delete this.addForm.rent
+          await updateEnterpriseAPI(this.addForm)
+          this.$message.success('编辑成功')
+        } else {
+          // console.log('可以请求接口')
+          await addEnterpriseAPI(this.addForm)
+          this.$message.success('企业添加成功')
+        }
         this.$router.go(-1) // 返回上一页
       })
     },
