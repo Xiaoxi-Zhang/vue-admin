@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar-logo-container">
-    <img src="@/assets/hmzs-logo.png" class="sidebar-logo">
+    <img src="@/assets/emo.jpg" class="sidebar-logo">
   </div>
 </template>
 
@@ -20,7 +20,7 @@ export default {
   overflow: hidden;
   // 大图样式
   .sidebar-logo {
-    width: 100%;
+    width: 50%;
     height: 100%;
   }
 }

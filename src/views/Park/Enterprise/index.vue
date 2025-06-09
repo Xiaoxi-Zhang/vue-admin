@@ -21,7 +21,7 @@
         />
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text">添加合同</el-button>
+            <el-button size="mini" type="text" @click="addRent">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="toEditPage(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEnterprise(scope.row.id)">删除</el-button>
@@ -39,6 +39,25 @@
         @current-change="handleChange"
       />
     </div>
+    <!-- 添加合同弹框 -->
+    <!-- title控制的左上角的文本 -->
+    <!-- visible控制弹框的显示隐藏 -->
+    <!-- close事件：弹框关闭时，会执行close后面的处理函数 -->
+    <!-- close-on-click-modal控制点击模态框是否关闭 -->
+    <el-dialog
+      title="添加合同"
+      :visible="rentDialogVisible"
+      width="580px"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
+      <!-- 表单区域 -->
+      <div class="form-container" />
+      <template #footer>
+        <el-button size="mini" @click="closeDialog">取 消</el-button>
+        <el-button size="mini" type="primary">确 定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -55,13 +74,21 @@ export default {
         pageSize: 2
       },
       list: [],
-      total: 0
+      total: 0,
+      rentDialogVisible: false // 控制添加合同弹框的显示隐藏
     }
   },
   created() {
     this.getEnterpriseList()
   },
   methods: {
+    addRent() {
+      this.rentDialogVisible = true
+    },
+    // 关闭弹框
+    closeDialog() {
+      this.rentDialogVisible = false
+    },
     // 删除企业
     delEnterprise(id) {
       // console.log(id)
