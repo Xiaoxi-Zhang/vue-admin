@@ -76,3 +76,14 @@ export function deleteEnterpriseAPI(id) {
     method: 'DELETE'
   })
 }
+
+/**
+ * 获取租赁楼宇列表
+ * @export
+ * @return {*}
+ */
+export function getRentBuildingAPI() {
+  return request({
+    url: '/park/rent/building'
+  })
+}

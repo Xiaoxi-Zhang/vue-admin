@@ -52,17 +52,52 @@
       @close="closeDialog"
     >
       <!-- 表单区域 -->
-      <div class="form-container" />
-      <template #footer>
-        <el-button size="mini" @click="closeDialog">取 消</el-button>
-        <el-button size="mini" type="primary">确 定</el-button>
-      </template>
-    </el-dialog>
-  </div>
-</template>
+      <div class="form-container">
+        <el-form ref="addForm" :model="rentForm" :rules="rentRules" label-position="top">
+          <el-form-item label="租赁楼宇" prop="buildingId">
+            <el-select v-model="rentForm.buildingId" placeholder="请选择">
+              <el-option
+                v-for="item in rentBuildingList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="租赁起止日期" prop="rentTime">
+            <el-date-picker
+              v-model="rentForm.rentTime"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="yyyy-MM-dd"
+            />
+          </el-form-item>
+          <el-form-item label="租赁合同" prop="contractId">
+            <!-- action:配置默认上传的地址。必须要配置，如果不配置需要加一个# -->
+            <!-- http-request 覆盖默认上传 -->
+            <!-- :before-upload 上传前的钩子 -->
+            <!-- limit 限制用户上传的最大个数 -->
+            <!-- on-exceed 超出限制时会自动执行 -->
+            <el-upload
+              action="#"
+              :http-request="httpRequest"
+              :before-upload="beforeUpload"
+              :limit="1"
+              :on-exceed="onExceed"
+            >
+              <el-button size="small" type="primary" plain>上传合同文件</el-button>
+              <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
+            </el-upload>
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-dialog></div></template>
 
 <script>
-import { getEnterpriseListAPI, deleteEnterpriseAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI } from '@/api/enterprise'
+import { uploadFileAPI } from '@/api/common'
 
 export default {
   name: 'EnterPrise',
@@ -75,15 +110,72 @@ export default {
       },
       list: [],
       total: 0,
-      rentDialogVisible: false // 控制添加合同弹框的显示隐藏
+      rentDialogVisible: false, // 控制添加合同弹框的显示隐藏
+      rentForm: {
+        buildingId: null, // 租赁楼宇ID
+        startTime: '', // 租赁起始时间
+        endTime: '', // 租赁结束时间
+        contractUrl: '', // 合同附件url
+        contractId: null, // 合同附件id
+        type: 0, // 添加合同0，续签合同1
+        enterpriseId: null, // 企业ID
+        rentTime: [] // 租赁起止日期
+      },
+      rentRules: {
+        buildingId: [
+          { required: true, message: '请选择租赁楼宇', trigger: 'change' }
+        ],
+        rentTime: [
+          { required: true, message: '请选择租赁起止日期', trigger: 'change' }
+        ],
+        contractId: [
+          { required: true, message: '请上传租赁合同', trigger: 'change' }
+        ]
+      },
+      rentBuildingList: [] // 租赁楼宇列表
     }
   },
   created() {
     this.getEnterpriseList()
   },
   methods: {
-    addRent() {
+    onExceed() {
+      // 超出限制时的提示
+      this.$message.warning('只能上传一个合同文件，请先删除已上传的文件')
+    },
+    // 上传前的校验
+    beforeUpload(file) {
+      const fileType = [
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'application/pdf'
+      ]
+      const result = fileType.includes(file.type)
+      const isLt5M = file.size / 1024 / 1024 < 5
+      if (result && isLt5M) {
+        this.$message.success('上传文件格式正确，正在上传...')
+        return true
+      } else {
+        this.$message.error('上传文件格式不正确或文件大小超过5M，请重新上传')
+        return false
+      }
+    },
+    // 上传文件
+    async httpRequest({ file }) {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 2) // 2表示合同
+      const res = await uploadFileAPI(formData)
+      // console.log(res)
+      this.rentForm.contractId = res.data.id // 获取上传的合同id
+      this.rentForm.contractUrl = res.data.url // 获取上传的合同url
+    },
+    // 添加合同
+    async addRent() {
       this.rentDialogVisible = true
+      const res = await getRentBuildingAPI()
+      // console.log(res)
+      this.rentBuildingList = res.data
     },
     // 关闭弹框
     closeDialog() {
