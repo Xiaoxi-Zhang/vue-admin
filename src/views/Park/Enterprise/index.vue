@@ -11,7 +11,22 @@
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table style="width: 100%" :data="list">
+      <el-table style="width: 100%" :data="list" @expand-change="expandChange">
+        <el-table-column type="expand">
+          <template #default>
+            <el-table>
+              <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
+              <el-table-column label="租赁起始时间" prop="startTime" />
+              <el-table-column label="合同状态" prop="status" />
+              <el-table-column label="操作" width="180">
+                <template #default="scope">
+                  <el-button size="mini" type="text">退租</el-button>
+                  <el-button size="mini" type="text">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
         <el-table-column type="index" label="序号" :index="indexMethod" />
         <el-table-column label="企业名称" width="320" prop="name" />
         <el-table-column label="联系人" prop="contact" />
@@ -103,7 +118,7 @@
     </el-dialog></div></template>
 
 <script>
-import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
 
 export default {
@@ -146,6 +161,14 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    // 点击展开或者关闭都会触发该事件
+    // row是当前展开或者关闭那一行的数据
+    // expandedRows是当前所有展开行的数据
+    async expandChange(row, expandedRows) {
+      // console.log(row, expandedRows)
+      const res = await getEnterpriseRentBuildingAPI(row.id)
+      console.log(res)
+    },
     onRemove() {
       // console.log('文件被移除')
       this.rentForm.contractUrl = '' // 清空合同附件url

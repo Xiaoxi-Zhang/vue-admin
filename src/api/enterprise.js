@@ -101,3 +101,15 @@ export function addRentAPI(data) {
     data
   })
 }
+
+/**
+ * 获取展开的租赁合同详情
+ * @export
+ * @param {*} id 企业id
+ * @return {*}
+ */
+export function getEnterpriseRentBuildingAPI(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`
+  })
+}
