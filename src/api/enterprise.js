@@ -87,3 +87,17 @@ export function getRentBuildingAPI() {
     url: '/park/rent/building'
   })
 }
+
+/**
+ * 添加租赁合同
+ * @export
+ * @param {*} data
+ * @return {*}
+ */
+export function addRentAPI(data) {
+  return request({
+    url: '/park/enterprise/rent',
+    method: 'POST',
+    data
+  })
+}

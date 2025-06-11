@@ -21,7 +21,7 @@
         />
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text" @click="addRent">添加合同</el-button>
+            <el-button size="mini" type="text" @click="addRent(scope.row.id)">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="toEditPage(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEnterprise(scope.row.id)">删除</el-button>
@@ -82,6 +82,7 @@
             <!-- on-exceed 超出限制时会自动执行 -->
             <!-- on-remove 文件移除时会自动执行 -->
             <el-upload
+              ref="upload"
               action="#"
               :http-request="httpRequest"
               :before-upload="beforeUpload"
@@ -102,7 +103,7 @@
     </el-dialog></div></template>
 
 <script>
-import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
 
 export default {
@@ -154,9 +155,20 @@ export default {
     },
     // 添加租赁合同
     confirmAdd() {
-      this.$refs.addForm.validate((flag) => {
+      this.$refs.addForm.validate(async(flag) => {
         if (!flag) return
         // 提交接口
+        // this.rentForm.startTime = this.rentForm.rentTime[0]
+        // this.rentForm.endTime = this.rentForm.rentTime[1]
+        const [startTime, endTime] = this.rentForm.rentTime
+        this.rentForm.startTime = startTime
+        this.rentForm.endTime = endTime
+        delete this.rentForm.rentTime
+        await addRentAPI(this.rentForm)
+        this.$message.success('添加租赁合同成功')
+        this.getEnterpriseList()
+        // 关闭弹框+清空数据
+        this.closeDialog()
       })
     },
     onExceed() {
@@ -192,8 +204,9 @@ export default {
       this.$refs.addForm.validateField('contractId')
     },
     // 添加合同
-    async addRent() {
+    async addRent(id) {
       this.rentDialogVisible = true
+      this.rentForm.enterpriseId = id
       const res = await getRentBuildingAPI()
       // console.log(res)
       this.rentBuildingList = res.data
@@ -201,6 +214,22 @@ export default {
     // 关闭弹框
     closeDialog() {
       this.rentDialogVisible = false
+      // 清空表单数据
+      // resetFields 只能清空绑定了prop的表单域
+      // 清空 校验提示
+      this.$refs.addForm.resetFields()
+      // 清空表单数据
+      this.rentForm = {
+        buildingId: null,
+        startTime: '',
+        endTime: '',
+        contractUrl: '',
+        contractId: null,
+        type: 0,
+        enterpriseId: null,
+        rentTime: []
+      }
+      this.$refs.upload.clearFiles() // 清空上传的文件
     },
     // 删除企业
     delEnterprise(id) {
