@@ -80,12 +80,14 @@
             <!-- :before-upload 上传前的钩子 -->
             <!-- limit 限制用户上传的最大个数 -->
             <!-- on-exceed 超出限制时会自动执行 -->
+            <!-- on-remove 文件移除时会自动执行 -->
             <el-upload
               action="#"
               :http-request="httpRequest"
               :before-upload="beforeUpload"
               :limit="1"
               :on-exceed="onExceed"
+              :on-remove="onRemove"
             >
               <el-button size="small" type="primary" plain>上传合同文件</el-button>
               <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
@@ -93,6 +95,10 @@
           </el-form-item>
         </el-form>
       </div>
+      <template #footer>
+        <el-button size="mini" @click="closeDialog">取 消</el-button>
+        <el-button size="mini" type="primary" @click="confirmAdd">确 定</el-button>
+      </template>
     </el-dialog></div></template>
 
 <script>
@@ -139,6 +145,20 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    onRemove() {
+      // console.log('文件被移除')
+      this.rentForm.contractUrl = '' // 清空合同附件url
+      this.rentForm.contractId = null // 清空合同附件id
+      this.$refs.addForm.validateField('contractId') // 重新验证合同附件
+      this.$message.success('合同文件已删除')
+    },
+    // 添加租赁合同
+    confirmAdd() {
+      this.$refs.addForm.validate((flag) => {
+        if (!flag) return
+        // 提交接口
+      })
+    },
     onExceed() {
       // 超出限制时的提示
       this.$message.warning('只能上传一个合同文件，请先删除已上传的文件')
@@ -169,6 +189,7 @@ export default {
       // console.log(res)
       this.rentForm.contractId = res.data.id // 获取上传的合同id
       this.rentForm.contractUrl = res.data.url // 获取上传的合同url
+      this.$refs.addForm.validateField('contractId')
     },
     // 添加合同
     async addRent() {
