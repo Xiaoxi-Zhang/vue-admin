@@ -13,8 +13,8 @@
     <div class="table">
       <el-table style="width: 100%" :data="list" @expand-change="expandChange">
         <el-table-column type="expand">
-          <template #default>
-            <el-table>
+          <template #default="scope">
+            <el-table :data="scope.row.rentList">
               <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
               <el-table-column label="租赁起始时间" prop="startTime" />
               <el-table-column label="合同状态" prop="status" />
@@ -166,8 +166,15 @@ export default {
     // expandedRows是当前所有展开行的数据
     async expandChange(row, expandedRows) {
       // console.log(row, expandedRows)
+      // 判断当前的状态是展开还是关闭
+      const isInclude = expandedRows.find(item => item.id === row.id)
+      if (!isInclude) return // 如果不包含，则说明是关闭状态
+      // 如果包含，则说明是展开状态
       const res = await getEnterpriseRentBuildingAPI(row.id)
-      console.log(res)
+      // console.log(res)
+      // eslint-disable-next-line require-atomic-updates
+      row.rentList = res.data
+      // console.log(row.rentList)
     },
     onRemove() {
       // console.log('文件被移除')
@@ -296,7 +303,13 @@ export default {
     async getEnterpriseList() {
       const res = await getEnterpriseListAPI(this.params)
       // console.log(res)
-      this.list = res.data.rows
+      // 给列表中的每一个数据添加一个额外的属性
+      this.list = res.data.rows.map(item => {
+        return {
+          ...item,
+          rentList: []
+        }
+      })
       this.total = res.data.total
     }
   }
