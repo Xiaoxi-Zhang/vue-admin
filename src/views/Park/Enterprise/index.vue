@@ -30,8 +30,8 @@
               </el-table-column>
               <el-table-column label="操作" width="180">
                 <template #default="rentObj">
-                  <el-button size="mini" type="text" @click="rentingOut(rentObj.row.id)">退租</el-button>
-                  <el-button size="mini" type="text">删除</el-button>
+                  <el-button size="mini" type="text" :disabled="rentObj.row.status===3" @click="rentingOut(rentObj.row.id)">退租</el-button>
+                  <el-button size="mini" type="text" :disabled="rentObj.row.status!==3" @click="delRent(rentObj.row.id)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -128,7 +128,7 @@
     </el-dialog></div></template>
 
 <script>
-import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI, rentingOutAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI, rentingOutAPI, delRentAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
 
 export default {
@@ -171,6 +171,26 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    // 删除租赁合同
+    delRent(id) {
+      this.$confirm('您确定要删除该租赁合同吗？', '温馨提示', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await delRentAPI(id)
+        this.$message({
+          type: 'success',
+          message: '删除成功！'
+        })
+        this.getEnterpriseList()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
     // 退租
     rentingOut(id) {
       // console.log(id)

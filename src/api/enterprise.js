@@ -126,3 +126,16 @@ export function rentingOutAPI(id) {
     method: 'PUT'
   })
 }
+
+/**
+ * 删除租赁合同
+ * @export
+ * @param {*} id 租赁合同id
+ * @return
+ */
+export function delRentAPI(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'DELETE'
+  })
+}
