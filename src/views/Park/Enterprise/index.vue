@@ -16,11 +16,21 @@
           <template #default="scope">
             <el-table :data="scope.row.rentList">
               <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
-              <el-table-column label="租赁起始时间" prop="startTime" />
-              <el-table-column label="合同状态" prop="status" />
+              <el-table-column label="租赁起始时间" prop="startTime">
+                <template #default="rentObj">
+                  {{ rentObj.row.startTime }} 至 {{ rentObj.row.endTime }}
+                </template>
+              </el-table-column>
+              <el-table-column label="合同状态" prop="status">
+                <template #default="rentObj">
+                  <el-tag :type="formatInfoType(rentObj.row.status)">
+                    {{ formatStatus(rentObj.row.status) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
               <el-table-column label="操作" width="180">
-                <template #default="scope">
-                  <el-button size="mini" type="text">退租</el-button>
+                <template #default="rentObj">
+                  <el-button size="mini" type="text" @click="rentingOut(rentObj.row.id)">退租</el-button>
                   <el-button size="mini" type="text">删除</el-button>
                 </template>
               </el-table-column>
@@ -118,7 +128,7 @@
     </el-dialog></div></template>
 
 <script>
-import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI } from '@/api/enterprise'
+import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI, rentingOutAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
 
 export default {
@@ -161,6 +171,38 @@ export default {
     this.getEnterpriseList()
   },
   methods: {
+    // 退租
+    rentingOut(id) {
+      // console.log(id)
+      this.$confirm('您确定要退租吗？', '温馨提示').then(async() => {
+        await rentingOutAPI(id)
+        this.$message.success('退租成功')
+        this.getEnterpriseList()
+      }).catch(() => {
+
+      })
+    },
+    // 格式化tag类型
+    formatInfoType(status) {
+      const MAP = {
+        0: 'warning',
+        1: 'success',
+        2: 'info',
+        3: 'danger'
+      }
+      // return 格式化之后的中文显示
+      return MAP[status]
+    },
+    // 格式化状态
+    formatStatus(status) {
+      const Map = {
+        0: '待生效',
+        1: '生效中',
+        2: '已到期',
+        3: '已退租'
+      }
+      return Map[status]
+    },
     // 点击展开或者关闭都会触发该事件
     // row是当前展开或者关闭那一行的数据
     // expandedRows是当前所有展开行的数据

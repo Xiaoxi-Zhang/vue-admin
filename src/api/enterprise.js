@@ -113,3 +113,16 @@ export function getEnterpriseRentBuildingAPI(id) {
     url: `/park/enterprise/rent/${id}`
   })
 }
+
+/**
+ * 退租
+ * @export
+ * @param {*} id 租赁合同的id
+ * @return {*}
+ */
+export function rentingOutAPI(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'PUT'
+  })
+}
