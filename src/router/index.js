@@ -49,6 +49,10 @@ export const routes = [
     ]
   },
   {
+    path: '/enterpriseDetail/:id',
+    component: () => import('@/views/Park/Enterprise/EnterpriseDetail')
+  },
+  {
     path: '/addEnterprise',
     component: () => import('@/views/Park/Enterprise/AddEnterprise')
   },
