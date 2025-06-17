@@ -62,30 +62,47 @@
               <el-input v-model="addForm.chargeCeiling" />
             </el-form-item>
           </div>
-          <el-form-item label="计费规则">
+          <!-- el-form-item可以继续嵌套el-form-item -->
+          <el-form-item label="计费规则" :prop="feeRuleProp">
             <!-- 按时长收费区域 -->
-            <div class="duration" style="display:flex">
-              每 <el-input v-model="addForm.durationTime" class="input-box" />
+            <div v-if="addForm.chargeType === 'duration'" class="duration" style="display:flex">
+              每
+              <el-form-item prop="durationTime">
+                <el-input v-model="addForm.durationTime" class="input-box" />
+              </el-form-item>
               小时
-              <el-input v-model="addForm.durationPrice" class="input-box" /> 元
+              <el-form-item prop="durationPrice">
+                <el-input v-model="addForm.durationPrice" class="input-box" /> 元
+              </el-form-item>
             </div>
             <!-- 按次收费区域 -->
-            <div class="turn" style="display:flex">
-              每次<el-input v-model="addForm.turnPrice" class="input-box" style="width:150px" /> 元
+            <div v-if="addForm.chargeType === 'turn'" class="turn" style="display:flex">
+              每次
+              <el-form-item prop="turnPrice">
+                <el-input v-model="addForm.turnPrice" class="input-box" style="width:150px" /> 元
+              </el-form-item>
             </div>
             <!-- 按分段收费区域 -->
-            <div class="partition">
+            <div v-if="addForm.chargeType === 'partition'" class="partition">
               <div class="item" style="display:flex">
-                <el-input v-model="addForm.partitionFrameTime" class="input-box" style="width:100px" />
+                <el-form-item prop="partitionFrameTime">
+                  <el-input v-model="addForm.partitionFrameTime" class="input-box" style="width:100px" />
+                </el-form-item>
                 小时内,每小时收费
-                <el-input v-model="addForm.partitionFramePrice" class="input-box" style="width:100px" />
+                <el-form-item prop="partitionFramePrice">
+                  <el-input v-model="addForm.partitionFramePrice" class="input-box" style="width:100px" />
+                </el-form-item>
                 元
               </div>
               <div class="item" style="display:flex;margin:30px auto 0">
                 每增加
-                <el-input v-model="addForm.partitionIncreaseTime" class="input-box" style="width:120px;" />
+                <el-form-item prop="partitionIncreaseTime">
+                  <el-input v-model="addForm.partitionIncreaseTime" class="input-box" style="width:120px;" />
+                </el-form-item>
                 小时,增加
-                <el-input v-model="addForm.partitionIncreasePrice" class="input-box" style="width:120px;" />
+                <el-form-item prop="partitionIncreasePrice">
+                  <el-input v-model="addForm.partitionIncreasePrice" class="input-box" style="width:120px;" />
+                </el-form-item>
                 元
               </div>
             </div>
@@ -94,14 +111,14 @@
       </div>
       <template #footer>
         <el-button size="mini" @click="closeDialog">取 消</el-button>
-        <el-button size="mini" type="primary">确 定</el-button>
+        <el-button size="mini" type="primary" @click="confirmAdd">确 定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getRuleListAPI } from '@/api/carrule'
+import { getRuleListAPI, addFeeRuleAPI } from '@/api/carrule'
 import { utils, writeFileXLSX } from 'xlsx'
 
 export default {
@@ -136,7 +153,31 @@ export default {
       addFormRules: {
         ruleNumber: [{ required: true, message: '请输入规则编号', trigger: 'blur' }],
         ruleName: [{ required: true, message: '请输入规则名称', trigger: 'blur' }],
-        chargeType: [{ required: true, message: '请选择收费类型', trigger: 'blur' }]
+        chargeType: [{ required: true, message: '请选择收费类型', trigger: 'blur' }],
+        durationTime: [{ required: true, message: '请输入时间', trigger: 'blur' }],
+        durationPrice: [{ required: true, message: '请输入金额', trigger: 'blur' }],
+        turnPrice: [{ required: true, message: '请输入次数', trigger: 'blur' }],
+        partitionFrameTime: [{ required: true, message: '请输入段内时间', trigger: 'blur' }],
+        partitionFramePrice: [{ required: true, message: '请输入段内费用', trigger: 'blur' }],
+        partitionIncreaseTime: [{ required: true, message: '请输入超出时间', trigger: 'blur' }],
+        partitionIncreasePrice: [{ required: true, message: '请输入超出金额', trigger: 'blur' }]
+      },
+      feeRuleProp: 'durationTime'
+    }
+  },
+  watch: {
+    'addForm.chargeType'(val) {
+      // console.log(val)
+      // 每次切换清空所有校验
+      this.$refs.addForm.clearValidate(['turnPrice', 'durationTime', 'durationPrice', 'partitionFrameTime', 'partitionFramePrice', 'partitionIncreaseTime', 'partitionIncreasePrice'])
+      if (val === 'duration') {
+        this.feeRuleProp = 'durationTime'
+      }
+      if (val === 'turn') {
+        this.feeRuleProp = 'turnPrice'
+      }
+      if (val === 'partition') {
+        this.feeRuleProp = 'partitionFrameTime'
       }
     }
   },
@@ -144,12 +185,25 @@ export default {
     this.getRuleList()
   },
   methods: {
+    confirmAdd() {
+      this.$refs.addForm.validate(async flag => {
+        if (!flag) return
+        // console.log('可以提交接口了')
+        await addFeeRuleAPI(this.addForm)
+        this.$message.success('新增计费规则成功')
+        this.getRuleList() // 刷新列表
+        this.closeDialog()
+      })
+    },
     // 打开新增计费规则弹框
     addFeeRule() {
       this.dialogVisible = true
     },
     closeDialog() {
       this.dialogVisible = false
+      this.$refs.addForm.resetFields() // 重置表单
+      this.addForm.freeDuration = null // 重置免费时长
+      this.addForm.chargeCeiling = null // 重置收费上限
     },
     // 格式化计费类型
     formateChargeType(chargeType) {

@@ -12,3 +12,17 @@ export function getRuleListAPI(params) {
     params
   })
 }
+
+/**
+ * 增加计费规则
+ * @export
+ * @param {*} data
+ * @return {*}
+ */
+export function addFeeRuleAPI(data) {
+  return request({
+    url: '/parking/rule',
+    method: 'POST',
+    data
+  })
+}
