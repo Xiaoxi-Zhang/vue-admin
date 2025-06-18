@@ -26,3 +26,16 @@ export function addFeeRuleAPI(data) {
     data
   })
 }
+
+/**
+ * 删除计费规则
+ * @export
+ * @param {*} id
+ * @return {*}
+ */
+export function deleteFeeRuleAPI(id) {
+  return request({
+    url: `/parking/rule/${id}`,
+    method: 'DELETE'
+  })
+}
