@@ -20,7 +20,7 @@
         <el-table-column label="计费规则" prop="ruleNameView" />
         <el-table-column label="操作" fixed="right" width="120">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="editRule(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="deleteFeeRule(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -36,7 +36,7 @@
         />
       </div>
     </div>
-    <AddRule :dialog-visible.sync="dialogVisible" @getList="getRuleList" />
+    <AddRule ref="editFeeRule" :dialog-visible.sync="dialogVisible" @getList="getRuleList" />
   </div>
 </template>
 
@@ -65,6 +65,12 @@ export default {
     this.getRuleList()
   },
   methods: {
+    editRule(id) {
+      this.dialogVisible = true
+      this.$refs.editFeeRule.getFeeRuleDetail(id)
+      this.$refs.editFeeRule.title = '修改规则'
+    },
+    // 删除计费规则
     deleteFeeRule(id) {
       this.$confirm('您确定要删除该计费规则吗？', '温馨提示', {
         confirmButtonText: '确定',
@@ -82,6 +88,7 @@ export default {
     // 打开新增计费规则弹框
     addFeeRule() {
       this.dialogVisible = true
+      this.$refs.editFeeRule.title = '新增规则'
     },
     // 格式化计费类型
     formateChargeType(chargeType) {

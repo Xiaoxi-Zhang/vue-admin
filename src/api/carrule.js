@@ -39,3 +39,15 @@ export function deleteFeeRuleAPI(id) {
     method: 'DELETE'
   })
 }
+
+/**
+ * 获取计费规则详情
+ * @export
+ * @param {*} id
+ * @return {*}
+ */
+export function getFeeRuleDetailAPI(id) {
+  return request({
+    url: `/parking/rule/${id}`
+  })
+}

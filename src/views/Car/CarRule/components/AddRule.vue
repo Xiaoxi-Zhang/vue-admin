@@ -1,6 +1,6 @@
 <template>
   <!-- 弹框 -->
-  <el-dialog :visible="dialogVisible" width="680px" title="新增规则" :close-on-click-modal="false" @close="closeDialog">
+  <el-dialog :visible="dialogVisible" width="680px" :title="title" :close-on-click-modal="false" @close="closeDialog">
     <!-- 表单接口 -->
     <div class="form-container">
       <el-form ref="addForm" :model="addForm" :rules="addFormRules" label-position="top">
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { addFeeRuleAPI } from '@/api/carrule'
+import { addFeeRuleAPI, getFeeRuleDetailAPI } from '@/api/carrule'
 
 export default {
   props: {
@@ -91,6 +91,7 @@ export default {
   },
   data() {
     return {
+      title: '新增规则',
       addForm: {
         ruleNumber: '', // 计费规则编号
         ruleName: '', // 计费规则名称
@@ -131,6 +132,13 @@ export default {
     }
   },
   methods: {
+    // 获取计费规则详情
+    async getFeeRuleDetail(id) {
+      const res = await getFeeRuleDetailAPI(id)
+      // console.log(res)
+      this.addForm = res.data
+      console.log('addForm:', this.addForm)
+    },
     confirmAdd() {
       this.$refs.addForm.validate(async flag => {
         if (!flag) return
