@@ -51,3 +51,17 @@ export function getFeeRuleDetailAPI(id) {
     url: `/parking/rule/${id}`
   })
 }
+
+/**
+ * 编辑计费规则
+ * @export
+ * @param {*} data
+ * @return {*}
+ */
+export function editParkingFeeRuleAPI(data) {
+  return request({
+    url: '/parking/rule',
+    method: 'PUT',
+    data
+  })
+}

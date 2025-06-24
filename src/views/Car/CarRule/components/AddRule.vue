@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { addFeeRuleAPI, getFeeRuleDetailAPI } from '@/api/carrule'
+import { addFeeRuleAPI, getFeeRuleDetailAPI, editParkingFeeRuleAPI } from '@/api/carrule'
 
 export default {
   props: {
@@ -143,8 +143,16 @@ export default {
       this.$refs.addForm.validate(async flag => {
         if (!flag) return
         // console.log('可以提交接口了')
-        await addFeeRuleAPI(this.addForm)
-        this.$message.success('新增计费规则成功')
+        if (this.addForm.id) {
+          // console.log('addForm是：', this.addForm)
+          await editParkingFeeRuleAPI(this.addForm)
+          // console.log('编辑成功')
+          this.$message.success('编辑成功')
+        } else {
+          await addFeeRuleAPI(this.addForm)
+          // console.log('新增计费规则成功')
+          this.$message.success('新增计费规则成功')
+        }
         // 子组件调用父组件中的方法
         // 1. this.$parent.getRuleList()
         // 2. this.$emit('getList')
@@ -163,6 +171,7 @@ export default {
       this.$refs.addForm.resetFields() // 重置表单
       this.addForm.freeDuration = null // 重置免费时长
       this.addForm.chargeCeiling = null // 重置收费上限
+      delete this.addForm.id // 删除id字段，避免新增时带上id
     }
   }
 }
