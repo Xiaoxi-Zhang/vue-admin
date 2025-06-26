@@ -9,7 +9,7 @@
         @click="menuChange(index)"
       >
         <div class="role-info">
-          <svg-icon icon-class="user" class="icon" />
+          <svg-icon :icon-class="activeIndex === index?'user-active':'user'" class="icon" />
           {{ item.roleName }}
         </div>
         <div class="more">
@@ -18,28 +18,82 @@
       </div>
       <el-button class="addBtn" size="mini">添加角色</el-button>
     </div>
+    <div class="right-wrapper">
+      <div class="tree-wrapper">
+        <div v-for="item in treeList" :key="item.id" class="tree-item">
+          <div class="tree-title"> {{ item.title }} </div>
+          <el-tree
+            ref="tree"
+            :data="item.children"
+            :props="defaultProps"
+            :default-expand-all="true"
+            show-checkbox
+            node-key="id"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { getRoleListAPI } from '@/api/system'
+import { getRoleListAPI, getTreeListAPI, getRoleDetailAPI } from '@/api/system'
 
 export default {
   name: 'Role',
   data() {
     return {
       roleList: [],
-      activeIndex: 0 // 默认选中第一个菜单
+      activeIndex: 0, // 默认选中第一个菜单
+      treeList: [], // 存储所有的权限列表
+      defaultProps: {
+        label: 'title',
+        disabled: () => true
+      }
     }
   },
   created() {
     this.getRoleList()
+    this.getTreeList()
   },
   methods: {
+    // 递归调用添加禁用效果
+    addDisabledProp(treeList) {
+      // console.log(treeList)
+      treeList.forEach(item => {
+        item.disabled = true
+        if (item.children) {
+          this.addDisabledProp(item.children)
+        }
+      })
+      // console.log(treeList)
+    },
+    // 获取所有的权限列表
+    async getTreeList() {
+      const res = await getTreeListAPI()
+      // console.log(res)
+      this.treeList = res.data
+      // this.addDisabledProp(this.treeList)
+    },
     // 点击菜单的事件
     menuChange(index) {
       // console.log(index)
       this.activeIndex = index
+      // 获取id
+      const roleId = this.roleList[index].roleId
+      // console.log('当前选中的角色ID:', roleId)
+      this.getRoleDetail(roleId)
+    },
+    // 获取角色对应的权限列表
+    async getRoleDetail(roleId) {
+      const res = await getRoleDetailAPI(roleId)
+      // console.log(res)
+      const perms = res.data.perms
+      // console.log(this.$refs.tree)
+      const treeComponentList = this.$refs.tree
+      treeComponentList.forEach((tree, index) => {
+        tree.setCheckedKeys(perms[index])
+      })
     },
     async getRoleList() {
       const res = await getRoleListAPI()
