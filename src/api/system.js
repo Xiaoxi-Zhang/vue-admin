@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { createNamespacedHelpers } from 'vuex'
 
 /**
  * 获取角色列表
@@ -31,5 +32,18 @@ export function getTreeListAPI() {
 export function getRoleDetailAPI(roleId) {
   return request({
     url: `/park/sys/role/${roleId}`
+  })
+}
+
+/**
+ * 获取当前角色下的成员列表
+ * @export
+ * @param {string} roleId - 角色ID
+ * @return {*}
+ */
+export function getRoleUserListAPI(roleId, params) {
+  return request({
+    url: `/park/sys/roleUser/${roleId}`,
+    params
   })
 }

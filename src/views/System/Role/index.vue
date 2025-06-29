@@ -19,25 +19,51 @@
       <el-button class="addBtn" size="mini">添加角色</el-button>
     </div>
     <div class="right-wrapper">
-      <div class="tree-wrapper">
-        <div v-for="item in treeList" :key="item.id" class="tree-item">
-          <div class="tree-title"> {{ item.title }} </div>
-          <el-tree
-            ref="tree"
-            :data="item.children"
-            :props="defaultProps"
-            :default-expand-all="true"
-            show-checkbox
-            node-key="id"
-          />
-        </div>
-      </div>
+      <el-tabs v-model="activeName">
+        <el-tab-pane label="功能权限" name="permission">
+          <div class="tree-wrapper">
+            <div v-for="item in treeList" :key="item.id" class="tree-item">
+              <div class="tree-title"> {{ item.title }} </div>
+              <el-tree
+                ref="tree"
+                :data="item.children"
+                :props="defaultProps"
+                :default-expand-all="true"
+                show-checkbox
+                node-key="id"
+              />
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane :label="`成员(${total})`" name="employee">
+          <div class="user-wrapper">
+            <el-table
+              :data="userList"
+              style="width: 100%"
+            >
+              <el-table-column
+                type="index"
+                width="250"
+                label="序号"
+              />
+              <el-table-column
+                prop="name"
+                label="员工姓名"
+              />
+              <el-table-column
+                prop="userName"
+                label="登录账号"
+              />
+            </el-table>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>
 
 <script>
-import { getRoleListAPI, getTreeListAPI, getRoleDetailAPI } from '@/api/system'
+import { getRoleListAPI, getTreeListAPI, getRoleDetailAPI, getRoleUserListAPI } from '@/api/system'
 
 export default {
   name: 'Role',
@@ -49,12 +75,20 @@ export default {
       defaultProps: {
         label: 'title',
         disabled: () => true
-      }
+      },
+      activeName: 'permission', // 默认选中功能权限
+      params: {
+        page: 1,
+        pageSize: 10
+      },
+      total: 0, // 成员总数
+      userList: [] // 成员列表
     }
   },
-  created() {
-    this.getRoleList()
-    this.getTreeList()
+  async created() {
+    await this.getRoleList()
+    await this.getTreeList()
+    this.menuChange(0) // 默认选中第一个角色
   },
   methods: {
     // 递归调用添加禁用效果
@@ -82,7 +116,16 @@ export default {
       // 获取id
       const roleId = this.roleList[index].roleId
       // console.log('当前选中的角色ID:', roleId)
+      // 获取角色回显的权限数据
       this.getRoleDetail(roleId)
+      // 获取角色下的成员信息
+      this.getRoleUserList(roleId)
+    },
+    async getRoleUserList(roleId) {
+      const res = await getRoleUserListAPI(roleId, this.params)
+      // console.log(res)
+      this.total = res.data.total
+      this.userList = res.data.rows
     },
     // 获取角色对应的权限列表
     async getRoleDetail(roleId) {
