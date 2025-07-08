@@ -47,3 +47,17 @@ export function getRoleUserListAPI(roleId, params) {
     params
   })
 }
+
+/**
+ * 创建角色
+ * @export
+ * @param {} data
+ * @return {*}
+ */
+export function createRoleUserAPI(data) {
+  return request({
+    url: '/park/sys/role',
+    method: 'POST',
+    data
+  })
+}

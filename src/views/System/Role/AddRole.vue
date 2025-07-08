@@ -52,7 +52,25 @@
       <div v-show="activeStep === 3" class="form-container">
         <div class="title">检查并完成</div>
         <div class="form">
-          检查并完成内容
+          <div class="info">
+            <div class="form-item">角色名称：{{ roleForm.roleName }}</div>
+            <div class="form-item">角色描述：{{ roleForm.remark }}</div>
+            <div class="form-item">角色权限：</div>
+            <div class="tree-wrapper">
+              <div v-for="item in treeList" :key="item.id" class="tree-item">
+                <div class="tree-title">{{ item.title }}</div>
+                <el-tree
+                  ref="diabledTree"
+                  :data="item.children"
+                  show-checkbox
+                  check-strictly
+                  default-expand-all
+                  node-key="id"
+                  :props="{ label: 'title', disabled: ()=> true}"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -60,22 +78,24 @@
       <div class="btn-container">
         <el-button v-show="activeStep!==1" @click="prev">上一步</el-button>
         <el-button v-show="activeStep !== 3" type="primary" @click="next">下一步</el-button>
-        <el-button v-show="activeStep === 3" type="primary">确认添加</el-button>
+        <el-button v-show="activeStep === 3" type="primary" @click="confirmAdd">确认添加</el-button>
       </div>
     </footer>
   </div>
 </template>
 
 <script>
-import { getTreeListAPI } from '@/api/system'
+import { getTreeListAPI, createRoleUserAPI } from '@/api/system'
 
 export default {
+  name: 'AddRole',
   data() {
     return {
       activeStep: 1,
       roleForm: {
         roleName: '',
-        remark: ''
+        remark: '',
+        perms: []
       },
       roleRules: {
         roleName: [
@@ -96,16 +116,23 @@ export default {
     this.getTreeList()
   },
   methods: {
+    async confirmAdd() {
+      await createRoleUserAPI(this.roleForm)
+      this.$message.success('角色添加成功')
+      this.$router.back()
+    },
     // 获取所有的权限列表
     async getTreeList() {
       const res = await getTreeListAPI()
       // console.log(res)
       this.treeList = res.data
     },
+    // 点击上一步
     prev() {
       if (this.activeStep <= 1) return
       this.activeStep--
     },
+    // 点击下一步
     next() {
       if (this.activeStep >= 3) return
       // 第一步的统一校验
@@ -114,6 +141,29 @@ export default {
           if (!flag) return
           this.activeStep++
         })
+      } else if (this.activeStep === 2) {
+        // 进入下一步之前应该加一些判断【用户是否勾选了权限信息】
+        const treeComponentList = this.$refs.tree
+        this.roleForm.perms = [] // 每次点击下一步之前，先清空perms中原有的数据
+        treeComponentList.forEach(tree => {
+          // console.log(tree.getCheckedKeys())
+          this.roleForm.perms.push(tree.getCheckedKeys())
+        })
+        // 把二维数组展开成一维数组
+        // console.log(this.roleForm.perms.flat())
+        if (this.roleForm.perms.flat().length === 0) {
+          this.$message.warning('请至少选择一个权限')
+          return
+        } else {
+          // 在第二步跳转到第三步时候，回显数据，避免第三步页面出现空白页面
+          const disabledTreeList = this.$refs.diabledTree
+          disabledTreeList.forEach((tree, index) => {
+            tree.setCheckedKeys(this.roleForm.perms[index])
+          })
+          this.activeStep++
+        }
+
+        // this.activeStep++
       }
     }
   }
