@@ -13,7 +13,7 @@
           {{ item.roleName }}
         </div>
         <div class="more">
-          <el-dropdown>
+          <el-dropdown trigger="click">
             <span class="el-dropdown-link">
               <svg-icon icon-class="more" />
             </span>

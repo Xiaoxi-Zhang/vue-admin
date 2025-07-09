@@ -129,8 +129,12 @@ export default {
       // console.log(res)
       this.roleForm = res.data
       // 回显第二步的树状结构的勾选状态
-      this.$refs.tree.forEach((item, index) => {
-        item.setCheckedKeys(this.roleForm.perms[index])
+      // 确保$refs 已经渲染后再遍历
+      this.$nextTick(() => {
+        const treeList = Array.isArray(this.$refs.tree) ? this.$refs.tree : [this.$refs.tree]
+        treeList.forEach((item, index) => {
+          item && item.setCheckedKeys(this.roleForm.perms[index] || [])
+        })
       })
     },
     // 添加、编辑角色
