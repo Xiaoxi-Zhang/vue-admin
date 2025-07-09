@@ -4,7 +4,7 @@
       <div class="left">
         <span class="arrow" @click="$router.back()"><i class="el-icon-arrow-left" />返回</span>
         <span>|</span>
-        <span>添加角色</span>
+        <span>{{ id?'编辑角色':'添加角色' }}</span>
       </div>
       <div class="right">
         超级管理员
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { getTreeListAPI, createRoleUserAPI } from '@/api/system'
+import { getTreeListAPI, createRoleUserAPI, getRoleDetailAPI, updateRoleAPI } from '@/api/system'
 
 export default {
   name: 'AddRole',
@@ -108,17 +108,41 @@ export default {
       treeList: [],
       defaultProps: {
         label: 'title'
-
       }
+    }
+  },
+  computed: {
+    id() {
+      return this.$route.query.id
     }
   },
   created() {
     this.getTreeList()
+    if (this.id) {
+      this.getRoleDetail()
+    }
   },
   methods: {
+    // 回显数据
+    async getRoleDetail() {
+      const res = await getRoleDetailAPI(this.id)
+      // console.log(res)
+      this.roleForm = res.data
+      // 回显第二步的树状结构的勾选状态
+      this.$refs.tree.forEach((item, index) => {
+        item.setCheckedKeys(this.roleForm.perms[index])
+      })
+    },
+    // 添加、编辑角色
     async confirmAdd() {
-      await createRoleUserAPI(this.roleForm)
-      this.$message.success('角色添加成功')
+      if (this.id) {
+        delete this.roleForm.userTotal
+        await updateRoleAPI(this.roleForm)
+        this.$message.success('角色编辑成功')
+      } else {
+        await createRoleUserAPI(this.roleForm)
+        this.$message.success('角色添加成功')
+      }
       this.$router.back()
     },
     // 获取所有的权限列表
@@ -145,7 +169,7 @@ export default {
         // 进入下一步之前应该加一些判断【用户是否勾选了权限信息】
         const treeComponentList = this.$refs.tree
         this.roleForm.perms = [] // 每次点击下一步之前，先清空perms中原有的数据
-        treeComponentList.forEach(tree => {
+        treeComponentList.forEach((tree) => {
           // console.log(tree.getCheckedKeys())
           this.roleForm.perms.push(tree.getCheckedKeys())
         })

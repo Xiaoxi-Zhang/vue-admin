@@ -13,7 +13,15 @@
           {{ item.roleName }}
         </div>
         <div class="more">
-          <svg-icon icon-class="more" />
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <svg-icon icon-class="more" />
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native="toEdit(item.roleId)">编辑角色</el-dropdown-item>
+              <el-dropdown-item @click.native="deleteRole(item.roleId)">删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </div>
       <el-button class="addBtn" size="mini" @click="$router.push('/sys/addRole')">添加角色</el-button>
@@ -63,7 +71,7 @@
 </template>
 
 <script>
-import { getRoleListAPI, getTreeListAPI, getRoleDetailAPI, getRoleUserListAPI } from '@/api/system'
+import { getRoleListAPI, getTreeListAPI, getRoleDetailAPI, getRoleUserListAPI, delRoleUserAPI } from '@/api/system'
 
 export default {
   name: 'Role',
@@ -91,6 +99,17 @@ export default {
     this.menuChange(0) // 默认选中第一个角色
   },
   methods: {
+    // 删除角色
+    deleteRole(id) {
+      this.$confirm('您确定要删除该角色吗？', '温馨提示').then(async() => {
+        await delRoleUserAPI(id)
+        this.$message.success('删除成功')
+        this.getRoleList()
+      }).catch(() => {})
+    },
+    toEdit(id) {
+      this.$router.push(`/sys/addRole?id=${id}`)
+    },
     // 递归调用添加禁用效果
     addDisabledProp(treeList) {
       // console.log(treeList)

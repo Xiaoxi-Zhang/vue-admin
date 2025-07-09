@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import { createNamespacedHelpers } from 'vuex'
 
 /**
  * 获取角色列表
@@ -59,5 +58,32 @@ export function createRoleUserAPI(data) {
     url: '/park/sys/role',
     method: 'POST',
     data
+  })
+}
+
+/**
+ * 更改角色权限
+ * @export
+ * @param {*} data
+ * @return {*}
+ */
+export function updateRoleAPI(data) {
+  return request({
+    url: `/park/sys/role`,
+    method: 'PUT',
+    data
+  })
+}
+
+/**
+ * 删除角色用户
+ * @export
+ * @param {*} id
+ * @return
+ */
+export function delRoleUserAPI(id) {
+  return request({
+    url: `/park/sys/role/${id}`,
+    method: 'DELETE'
   })
 }
