@@ -11,7 +11,7 @@ import '@/styles/index.scss' // global css
 
 import App from './App'
 // 引入 Vuex
-import store from './store'
+import store from './store/index'
 // 引入路由配置文件Vue-Route
 import router from './router'
 

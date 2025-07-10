@@ -1,5 +1,5 @@
 import axios from 'axios'
-import store from '@/store/index.js' // 引入store对象
+import store from '@/store/index' // 引入store对象
 import { Message } from 'element-ui'
 import router from '@/router'
 

@@ -30,6 +30,8 @@ export default {
     routes() {
       // this.$router.options.routes 获取的是创建路由对象时传入的路由规则
       // console.log(this.$router.options.routes)
+      // 左侧菜单的渲染是通过 this.$router.options.routes 来进行渲染的
+      // 权限标识 只需要给 this.$router.options.routes 进行对比
       return this.$router.options.routes
     },
     activeMenu() {

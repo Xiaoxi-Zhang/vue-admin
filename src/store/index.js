@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import user from './modules/user'
+import menu from './modules/menu'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -14,7 +15,8 @@ const store = new Vuex.Store({
   // getters: {},
   // 组合模块的配置项（分模块，目的：方便代码维护）
   modules: {
-    user
+    user,
+    menu
   }
 })
 

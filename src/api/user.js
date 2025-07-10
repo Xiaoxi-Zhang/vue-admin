@@ -16,3 +16,15 @@ export function loginAPI(data) {
     data
   })
 }
+
+/**
+ * 获取用户信息
+ * @export
+ * @param {*} data
+ * @return {*} promise
+ */
+export function getProfileAPI() {
+  return request({
+    url: '/park/user/profile'
+  })
+}
