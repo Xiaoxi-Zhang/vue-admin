@@ -1,13 +1,22 @@
 import { getProfileAPI } from '@/api/user'
+import { routes } from '@/router/index'
 
 export default {
   namespaced: true,
   state: {
-    permission: []
+    // 权限标识
+    permission: [],
+    // 路由规则
+    menuList: []
   },
   mutations: {
+    // 修改权限标识
     setPermission(state, newPermission) {
       state.permission = newPermission
+    },
+    // 修改路由规则
+    setMenuList(state, asyncRoutes) {
+      state.menuList = [...routes, ...asyncRoutes]
     }
   },
   getters: {},
