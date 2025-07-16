@@ -30,6 +30,8 @@ export default {
     logout() {
       // 清除token信息
       this.$store.commit('user/removeToken')
+      // 清空路由规则
+      this.$store.commit('menu/clearMenuList')
       // 跳转到登录页面
       // 记住当前退出页面的路由地址
 

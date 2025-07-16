@@ -7,7 +7,7 @@
       <el-button type="primary" @click="search">查询</el-button>
     </div>
     <div class="create-container">
-      <el-button type="primary" @click="$router.push('/addEnterprise')">添加企业</el-button>
+      <el-button v-permission="'park:enterprise:add_edit'" type="primary" @click="$router.push('/addEnterprise')">添加企业</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
@@ -30,8 +30,8 @@
               </el-table-column>
               <el-table-column label="操作" width="180">
                 <template #default="rentObj">
-                  <el-button size="mini" type="text" :disabled="rentObj.row.status===3" @click="rentingOut(rentObj.row.id)">退租</el-button>
-                  <el-button size="mini" type="text" :disabled="rentObj.row.status!==3" @click="delRent(rentObj.row.id)">删除</el-button>
+                  <el-button v-permission="'park:rent:add_surrender'" size="mini" type="text" :disabled="rentObj.row.status===3" @click="rentingOut(rentObj.row.id)">退租</el-button>
+                  <el-button v-permission="'park:rent:remove'" size="mini" type="text" :disabled="rentObj.row.status!==3" @click="delRent(rentObj.row.id)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -46,10 +46,10 @@
         />
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text" @click="addRent(scope.row.id)">添加合同</el-button>
-            <el-button size="mini" type="text" @click="$router.push(`/enterpriseDetail/${scope.row.id}`)">查看</el-button>
-            <el-button size="mini" type="text" @click="toEditPage(scope.row.id)">编辑</el-button>
-            <el-button size="mini" type="text" @click="delEnterprise(scope.row.id)">删除</el-button>
+            <el-button v-permission="'park:rent:add_surrender'" size="mini" type="text" @click="addRent(scope.row.id)">添加合同</el-button>
+            <el-button v-permission="'park:enterprise:query'" size="mini" type="text" @click="$router.push(`/enterpriseDetail/${scope.row.id}`)">查看</el-button>
+            <el-button v-permission="'park:enterprise:add_edit'" size="mini" type="text" @click="toEditPage(scope.row.id)">编辑</el-button>
+            <el-button v-permission="'park:enterprise:remove'" size="mini" type="text" @click="delEnterprise(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -130,6 +130,7 @@
 <script>
 import { getEnterpriseListAPI, deleteEnterpriseAPI, getRentBuildingAPI, addRentAPI, getEnterpriseRentBuildingAPI, rentingOutAPI, delRentAPI } from '@/api/enterprise'
 import { uploadFileAPI } from '@/api/common'
+import { mapState } from 'vuex'
 
 export default {
   name: 'EnterPrise',
@@ -167,7 +168,11 @@ export default {
       rentBuildingList: [] // 租赁楼宇列表
     }
   },
+  computed: {
+    ...mapState('menu', ['permission'])
+  },
   created() {
+    // console.log('created', this.permission)
     this.getEnterpriseList()
   },
   methods: {

@@ -22,6 +22,9 @@ import '@/icons'
 // import 除了导入某个成员之外，还可以执行导入的文件
 import '@/permission'
 
+// 导入自定义指令
+import '@/directive'
+
 // 结果：把element-ui中导出的所有组件注册成全局组件
 Vue.use(ElementUI)
 
