@@ -51,17 +51,17 @@ router.beforeEach(async(to, from, next) => {
       next()
       // 1.拿到用户的权限信息
       const permissions = await store.dispatch('menu/getUserPermission')
-      console.log('全部的权限标识', permissions)
+      // console.log('全部的权限标识', permissions)
       // 2.根据权限标识 筛选出对应的一级路由标识
       const firstPermission = getFirstRouterPermissions(permissions)
-      console.log('一级权限标识', firstPermission)
+      // console.log('一级权限标识', firstPermission)
       // 3.根据权限标识 筛选出对应的二级路由标识
       const secondPermission = getSecondRouterPermissions(permissions)
-      console.log('二级权限标识', secondPermission)
+      // console.log('二级权限标识', secondPermission)
       // 4.根据一级权限标识和二级权限标识和动态路由进行筛选
-      console.log('所有的动态路由', asyncRoutes)
+      // console.log('所有的动态路由', asyncRoutes)
       const routes = getRoutes(firstPermission, secondPermission, asyncRoutes)
-      console.log('筛选之后的动态路由', routes)
+      // console.log('筛选之后的动态路由', routes)
       // 5.把筛选后的路由 展示在左侧
       // 5.1 先把筛选之后的路由添加到路由对象中（跳转）
       routes.forEach(item => router.addRoute(item))

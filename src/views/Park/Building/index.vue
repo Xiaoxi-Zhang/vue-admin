@@ -3,9 +3,26 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">楼宇名称：</div>
-      <el-input placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="params.name" placeholder="请输入内容" class="search-main" clearable @clear="doSearch" />
+      <el-button type="primary" @click="doSearch">查询</el-button>
     </div>
+    <!-- 添加楼宇弹框 -->
+    <div class="create-container">
+      <el-dialog
+        title="添加楼宇"
+        :visible="dialogVisible"
+        width="580px"
+        @close="closeDialog"
+      >
+        <span>这是一段信息</span>
+        <template #footer>
+          <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" size="mini" @click="dialogVisible = false">确 定</el-button>
+        </template>
+      </el-dialog>
+      <el-button type="primary" @click="addBuilding">添加楼宇</el-button>
+    </div>
+
     <!-- 表格区域 -->
     <div class="table">
       <el-table
@@ -13,7 +30,7 @@
         :data="buildingList"
       >
         <el-table-column
-          prop="index"
+          type="index"
           label="序号"
           :index="indexMethod"
         />
@@ -62,7 +79,8 @@
     <div class="page-container">
       <el-pagination
         layout="total, prev, pager, next"
-        :total="50"
+        :total="total"
+        @current-change="pageChange"
       />
     </div>
   </div>
@@ -78,14 +96,35 @@ export default {
       buildingList: [], // 楼宇列表
       params: {
         page: 1,
-        pageSize: 10
-      }
+        pageSize: 10,
+        name: '' // 楼宇名称搜索参数
+      },
+      total: 0,
+      dialogVisible: false // 控制弹框显示
     }
   },
   created() {
     this.getBuildingList()
   },
   methods: {
+    addBuilding() {
+      this.dialogVisible = true // 显示添加楼宇弹框
+    },
+    closeDialog() {
+      this.dialogVisible = false // 关闭弹框
+    },
+    // 查询搜索
+    doSearch() {
+      this.params.page = 1 // 重置页码为1
+      this.getBuildingList()
+    },
+    // 分页切换
+    pageChange(val) {
+      // console.log('当前页:', val)
+      this.params.page = val
+      this.getBuildingList()
+    },
+    // 格式化状态
     formatStatus(status) {
       const statusMap = {
         0: '租赁中',
@@ -98,15 +137,19 @@ export default {
       const res = await getBuildingListAPI(this.params)
       // console.log(res)
       this.buildingList = res.data.rows
+      this.total = res.data.total // 存储总条数
     },
-    indexMethod(row) {
-      return (this.listParams.page - 1) * this.listParams.pageSize + row + 1
+    indexMethod(index) {
+      return (this.params.page - 1) * this.params.pageSize + index + 1
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.create-container{
+  margin: 10px 0px;
+}
 .page-container{
     padding:4px 0px;
     text-align: right;
