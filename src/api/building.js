@@ -26,3 +26,16 @@ export function createBuildingListAPI(data) {
     data
   })
 }
+
+/**
+ * 删除楼宇
+ * @export
+ * @param {*} id
+ * @returns
+ */
+export function delBuildingListAPI(id) {
+  return request({
+    url: `/park/building/${id}`,
+    method: 'DELETE'
+  })
+}

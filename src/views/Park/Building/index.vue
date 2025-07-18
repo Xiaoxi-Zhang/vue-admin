@@ -86,6 +86,7 @@
             <el-button
               size="mini"
               type="text"
+              @click="delBuildingList(scope.row.id)"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -103,7 +104,7 @@
 </template>
 
 <script>
-import { getBuildingListAPI, createBuildingListAPI } from '@/api/building'
+import { getBuildingListAPI, createBuildingListAPI, delBuildingListAPI } from '@/api/building'
 
 export default {
   name: 'Building',
@@ -135,6 +136,21 @@ export default {
     this.getBuildingList()
   },
   methods: {
+    delBuildingList(id) {
+      this.$confirm('确认删除当前楼宇吗？', '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await delBuildingListAPI(id)
+        // 如果删除的是最后一条数据，获取列表时，应该让 page--
+        if (this.buildingList.length === 1 && this.params.page > 1) {
+          this.params.page--
+        }
+        this.getBuildingList()
+        this.$message.success('删除成功')
+      }).catch(() => {})
+    },
     confirmAdd() {
       this.$refs.addForm.validate(async(valid) => {
         if (valid) {
