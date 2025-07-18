@@ -14,10 +14,26 @@
         width="580px"
         @close="closeDialog"
       >
-        <span>这是一段信息</span>
+        <!-- 表单接口 -->
+        <div class="form-container">
+          <el-form ref="addForm" :model="addForm" :rules="addFormRules">
+            <el-form-item label="楼宇名称" prop="name">
+              <el-input v-model="addForm.name" />
+            </el-form-item>
+            <el-form-item label="楼宇层数" prop="floors">
+              <el-input v-model="addForm.floors" />
+            </el-form-item>
+            <el-form-item label="在管面积" prop="area">
+              <el-input v-model="addForm.area" />
+            </el-form-item>
+            <el-form-item label="物业费" prop="propertyFeePrice">
+              <el-input v-model="addForm.propertyFeePrice" />
+            </el-form-item>
+          </el-form>
+        </div>
         <template #footer>
-          <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" size="mini" @click="dialogVisible = false">确 定</el-button>
+          <el-button size="mini" @click="closeDialog">取 消</el-button>
+          <el-button type="primary" size="mini" @click="confirmAdd">确 定</el-button>
         </template>
       </el-dialog>
       <el-button type="primary" @click="addBuilding">添加楼宇</el-button>
@@ -87,12 +103,24 @@
 </template>
 
 <script>
-import { getBuildingListAPI } from '@/api/building'
+import { getBuildingListAPI, createBuildingListAPI } from '@/api/building'
 
 export default {
   name: 'Building',
   data() {
     return {
+      addForm: {
+        name: '',
+        floors: null,
+        area: null,
+        propertyFeePrice: null
+      },
+      addFormRules: {
+        name: [{ required: true, message: '请输入楼宇名称', trigger: 'blur' }],
+        floors: [{ required: true, message: '请输入楼宇层数', trigger: 'blur' }],
+        area: [{ required: true, message: '请输入楼宇面积', trigger: 'blur' }],
+        propertyFeePrice: [{ required: true, message: '请输入物业费', trigger: 'blur' }]
+      },
       buildingList: [], // 楼宇列表
       params: {
         page: 1,
@@ -107,11 +135,23 @@ export default {
     this.getBuildingList()
   },
   methods: {
+    confirmAdd() {
+      this.$refs.addForm.validate(async(valid) => {
+        if (valid) {
+          // console.log('valid:', valid)
+          await createBuildingListAPI(this.addForm)
+          this.getBuildingList()
+          this.closeDialog() // 关闭弹框
+          this.$message.success('添加成功')
+        }
+      })
+    },
     addBuilding() {
       this.dialogVisible = true // 显示添加楼宇弹框
     },
     closeDialog() {
       this.dialogVisible = false // 关闭弹框
+      this.$refs.addForm.resetFields() // 重置表单
     },
     // 查询搜索
     doSearch() {
@@ -147,6 +187,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.form-container {
+  padding: 0px 80px;
+}
 .create-container{
   margin: 10px 0px;
 }

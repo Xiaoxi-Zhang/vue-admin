@@ -12,3 +12,17 @@ export function getBuildingListAPI(params) {
     params
   })
 }
+
+/**
+ * 添加楼宇
+ * @export
+ * @param {*} data
+ * @returns
+ */
+export function createBuildingListAPI(data) {
+  return request({
+    url: '/park/building',
+    method: 'POST',
+    data
+  })
+}
