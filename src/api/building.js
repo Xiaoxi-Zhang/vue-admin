@@ -40,7 +40,6 @@ export function delBuildingListAPI(id) {
   })
 }
 
-//  https://api-hmzs.itheima.net/v1/park/building
 /**
  * 更新楼宇
  * @export
