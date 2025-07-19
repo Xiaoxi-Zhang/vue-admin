@@ -39,3 +39,18 @@ export function delBuildingListAPI(id) {
     method: 'DELETE'
   })
 }
+
+//  https://api-hmzs.itheima.net/v1/park/building
+/**
+ * 更新楼宇
+ * @export
+ * @param {*} data
+ * @returns
+ */
+export function editBuildingListAPI(data) {
+  return request({
+    url: '/park/building',
+    method: 'PUT',
+    data
+  })
+}

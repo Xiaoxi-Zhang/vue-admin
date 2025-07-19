@@ -9,7 +9,7 @@
     <!-- 添加楼宇弹框 -->
     <div class="create-container">
       <el-dialog
-        title="添加楼宇"
+        :title="title"
         :visible="dialogVisible"
         width="580px"
         @close="closeDialog"
@@ -82,6 +82,7 @@
             <el-button
               size="mini"
               type="text"
+              @click="editBuilding(scope.row)"
             >编辑</el-button>
             <el-button
               size="mini"
@@ -104,7 +105,7 @@
 </template>
 
 <script>
-import { getBuildingListAPI, createBuildingListAPI, delBuildingListAPI } from '@/api/building'
+import { getBuildingListAPI, createBuildingListAPI, delBuildingListAPI, editBuildingListAPI } from '@/api/building'
 
 export default {
   name: 'Building',
@@ -129,13 +130,24 @@ export default {
         name: '' // 楼宇名称搜索参数
       },
       total: 0,
-      dialogVisible: false // 控制弹框显示
+      dialogVisible: false, // 控制弹框显示
+      title: '添加楼宇' // 弹框标题
     }
   },
   created() {
     this.getBuildingList()
   },
   methods: {
+    // 编辑楼宇，回显数据
+    editBuilding(row) {
+      // 1.打开弹框
+      this.dialogVisible = true
+      this.title = '编辑楼宇'
+      // 2.解构数据
+      // console.log('row:', row)
+      Object.assign(this.addForm, row)
+      // console.log('addForm:', this.addForm)
+    },
     delBuildingList(id) {
       this.$confirm('确认删除当前楼宇吗？', '温馨提示', {
         confirmButtonText: '确定',
@@ -155,19 +167,34 @@ export default {
       this.$refs.addForm.validate(async(valid) => {
         if (valid) {
           // console.log('valid:', valid)
-          await createBuildingListAPI(this.addForm)
+          if (this.addForm.id) {
+            // 编辑操作
+            // console.log('this.addForm:', this.addForm)
+            delete this.addForm.status
+            await editBuildingListAPI(this.addForm)
+            this.$message.success('编辑成功')
+          } else {
+            await createBuildingListAPI(this.addForm)
+            this.$message.success('添加成功')
+          }
           this.getBuildingList()
           this.closeDialog() // 关闭弹框
-          this.$message.success('添加成功')
         }
       })
     },
     addBuilding() {
       this.dialogVisible = true // 显示添加楼宇弹框
+      this.title = '添加楼宇'
     },
     closeDialog() {
       this.dialogVisible = false // 关闭弹框
       this.$refs.addForm.resetFields() // 重置表单
+      Object.assign(this.addForm, {
+        name: '',
+        floors: null,
+        area: null,
+        propertyFeePrice: null
+      })
     },
     // 查询搜索
     doSearch() {
