@@ -37,6 +37,7 @@
         </template>
       </el-dialog>
       <el-button type="primary" @click="addBuilding">添加楼宇</el-button>
+      <el-button @click="exportExcel">导出Excel</el-button>
     </div>
 
     <!-- 表格区域 -->
@@ -106,6 +107,7 @@
 
 <script>
 import { getBuildingListAPI, createBuildingListAPI, delBuildingListAPI, editBuildingListAPI } from '@/api/building'
+import { utils, writeFileXLSX } from 'xlsx'
 
 export default {
   name: 'Building',
@@ -138,6 +140,38 @@ export default {
     this.getBuildingList()
   },
   methods: {
+    // 导出Excel
+    async exportExcel() {
+      const res = await getBuildingListAPI(this.params)
+      const tableHeaderKeys = ['name', 'floors', 'area', 'propertyFeePrice', 'status']
+      const statusMap = {
+        0: '租赁中',
+        1: '空置中'
+      }
+      // 处理数据
+      const sheetData = res.data.rows.map(item => {
+        const obj = {}
+        tableHeaderKeys.forEach(key => {
+          if (key === 'status') {
+            obj[key] = statusMap[item[key]]
+          } else {
+            obj[key] = item[key]
+          }
+        })
+        return obj
+      })
+      // 要导出的表头
+      const tableHeaderValues = ['楼宇名称', '层数', '在管面积(m²)', '物业费(元/m²)', '状态']
+      // 创建一个工作表
+      const worksheet = utils.json_to_sheet(sheetData)
+      // 创建一个新的工作簿
+      const workbook = utils.book_new()
+      // 将工作表添加到工作簿
+      utils.book_append_sheet(workbook, worksheet, 'Data')
+      // 改写表头
+      utils.sheet_add_aoa(worksheet, [tableHeaderValues], { origin: 'A1' })
+      writeFileXLSX(workbook, '楼宇管理.xlsx')
+    },
     // 编辑楼宇，回显数据
     editBuilding(row) {
       // 1.打开弹框
