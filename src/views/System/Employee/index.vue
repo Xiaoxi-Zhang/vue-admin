@@ -12,7 +12,7 @@
     <!-- 表格区域 -->
     <div class="table">
       <el-table style="width: 100%" :data="employeeList">
-        <el-table-column type="index" label="序号" />
+        <el-table-column type="index" label="序号" :index="indexMethod" />
         <el-table-column label="员工姓名" width="180" prop="name" />
         <el-table-column label="登录账号" width="180" prop="userName" />
         <el-table-column label="联系方式" width="120" prop="phonenumber" />
@@ -34,7 +34,11 @@
     </div>
     <div class="page-container">
       <el-pagination
+        background
         layout="total, prev, pager, next"
+        :page-size="params.pageSize"
+        :total="total"
+        @current-change="pageChange"
       />
     </div>
     <!-- 添加员工 -->
@@ -52,18 +56,28 @@ export default {
       params: {
         name: '',
         page: 1,
-        pageSize: 10
-      }
+        pageSize: 2
+      },
+      total: 0
     }
   },
   created() {
     this.getEmployeeList()
   },
   methods: {
+    indexMethod(index) {
+      return (this.params.page - 1) * this.params.pageSize + index + 1
+    },
+    pageChange(val) {
+      // console.log(val)
+      this.params.page = val
+      this.getEmployeeList()
+    },
     async getEmployeeList() {
       const res = await getEmployeeListAPI(this.params)
-      console.log(res)
+      // console.log(res)
       this.employeeList = res.data.rows
+      this.total = res.data.total
     }
   }
 }
