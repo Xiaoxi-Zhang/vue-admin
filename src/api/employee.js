@@ -26,3 +26,16 @@ export function addEmployeeAPI(data) {
     data
   })
 }
+
+/**
+ * 删除员工
+ * @export
+ * @param {*} id
+ * @returns
+ */
+export function delEmployeeAPI(id) {
+  return request({
+    url: `/park/sys/user/${id}`,
+    method: 'DELETE'
+  })
+}
