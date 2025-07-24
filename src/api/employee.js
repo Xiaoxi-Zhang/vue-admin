@@ -12,3 +12,17 @@ export function getEmployeeListAPI(params) {
     params
   })
 }
+
+/**
+ * 添加员工
+ * @export
+ * @param {*} data
+ * @returns
+ */
+export function addEmployeeAPI(data) {
+  return request({
+    url: '/park/sys/user',
+    method: 'POST',
+    data
+  })
+}

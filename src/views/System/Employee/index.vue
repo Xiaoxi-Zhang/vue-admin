@@ -82,8 +82,8 @@
           </el-form>
         </div>
         <template #footer>
-          <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
-          <el-button size="mini" type="primary">确 定</el-button>
+          <el-button size="mini" @click="closeDialog">取 消</el-button>
+          <el-button size="mini" type="primary" @click="confirmAdd">确 定</el-button>
         </template>
       </el-dialog>
     </div>
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { getEmployeeListAPI } from '@/api/employee'
+import { getEmployeeListAPI, addEmployeeAPI } from '@/api/employee'
 import { getRoleListAPI } from '@/api/system'
 
 export default {
@@ -127,6 +127,12 @@ export default {
     this.getEmployeeList()
   },
   methods: {
+    async confirmAdd() {
+      await addEmployeeAPI(this.addForm)
+      this.closeDialog()
+      this.$message.success('添加成功')
+      this.getEmployeeList()
+    },
     async openDialog() {
       const res = await getRoleListAPI()
       // console.log(res)
@@ -134,6 +140,8 @@ export default {
     },
     closeDialog() {
       this.dialogVisible = false
+      // 重置表单
+      this.$refs.addForm.resetFields()
     },
     addEmployee() {
       this.dialogVisible = true
