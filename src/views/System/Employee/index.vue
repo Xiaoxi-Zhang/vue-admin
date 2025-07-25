@@ -26,7 +26,7 @@
         <el-table-column label="操作" fixed="right" width="120">
           <template #default="scope">
             <el-button size="mini" type="text">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delEmployee(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text">重置密码</el-button>
           </template>
         </el-table-column>
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { getEmployeeListAPI, addEmployeeAPI } from '@/api/employee'
+import { getEmployeeListAPI, addEmployeeAPI, delEmployeeAPI } from '@/api/employee'
 import { getRoleListAPI } from '@/api/system'
 
 export default {
@@ -127,6 +127,24 @@ export default {
     this.getEmployeeList()
   },
   methods: {
+    delEmployee(id) {
+      this.$confirm('删除员工后将不可登录，确认删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        // console.log(id)
+        await delEmployeeAPI(id)
+        // 如果删除的是最后一条数据，获取列表时，应该让 page--
+        if (this.employeeList.length === 1 && this.params.page > 1) {
+          this.params.page--
+        }
+        this.$message.success('删除成功')
+        this.getEmployeeList()
+      }).catch(() => {
+        this.$message.info('已取消删除')
+      })
+    },
     async confirmAdd() {
       await addEmployeeAPI(this.addForm)
       this.closeDialog()
