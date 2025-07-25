@@ -3,8 +3,8 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">员工姓名：</div>
-      <el-input clearable placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" @clear="doSearch" />
+      <el-button type="primary" @click="doSearch">查询</el-button>
     </div>
     <div class="create-container">
       <el-button type="primary" @click="addEmployee">添加员工</el-button>
@@ -19,7 +19,7 @@
         <el-table-column label="角色" width="120" prop="roleName" />
         <el-table-column label="状态">
           <template #default="scope">
-            {{ scope.row.status }}
+            {{ formatStatus(scope.row.status) }}
           </template>
         </el-table-column>
         <el-table-column label="添加时间" prop="createTime" />
@@ -127,6 +127,14 @@ export default {
     this.getEmployeeList()
   },
   methods: {
+    doSearch() {
+      this.params.page = 1 // 重置页码
+      this.getEmployeeList()
+    },
+    // 适配员工状态
+    formatStatus(status) {
+      return status === 0 ? '禁用' : '启用'
+    },
     delEmployee(id) {
       this.$confirm('删除员工后将不可登录，确认删除吗？', '提示', {
         confirmButtonText: '确定',
