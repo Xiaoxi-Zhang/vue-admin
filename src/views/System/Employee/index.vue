@@ -25,7 +25,7 @@
         <el-table-column label="添加时间" prop="createTime" />
         <el-table-column label="操作" fixed="right" width="120">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="editEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEmployee(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text">重置密码</el-button>
           </template>
@@ -44,7 +44,7 @@
     <div>
       <!-- 添加员工 -->
       <el-dialog
-        title="添加员工"
+        :title="title"
         width="480px"
         :visible="dialogVisible"
         :close-on-click-modal="false"
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { getEmployeeListAPI, addEmployeeAPI, delEmployeeAPI } from '@/api/employee'
+import { getEmployeeListAPI, addEmployeeAPI, delEmployeeAPI, updateEmployeeAPI } from '@/api/employee'
 import { getRoleListAPI } from '@/api/system'
 
 export default {
@@ -120,13 +120,20 @@ export default {
         page: 1,
         pageSize: 2
       },
-      total: 0
+      total: 0,
+      title: '添加员工'
     }
   },
   created() {
     this.getEmployeeList()
   },
   methods: {
+    editEmployee(row) {
+      this.dialogVisible = true
+      this.title = '编辑员工'
+      // console.log('row:', row)
+      Object.assign(this.addForm, row)
+    },
     doSearch() {
       this.params.page = 1 // 重置页码
       this.getEmployeeList()
@@ -154,10 +161,19 @@ export default {
       })
     },
     async confirmAdd() {
-      await addEmployeeAPI(this.addForm)
-      this.closeDialog()
-      this.$message.success('添加成功')
+      this.$refs.addForm.validate(async(valid) => {
+        if (!valid) return
+        if (this.addForm.id) {
+          console.log('this.addForm:', this.addForm)
+          await updateEmployeeAPI(this.addForm)
+          this.$message.success('编辑成功')
+        } else {
+          await addEmployeeAPI(this.addForm)
+          this.$message.success('添加成功')
+        }
+      })
       this.getEmployeeList()
+      this.closeDialog()
     },
     async openDialog() {
       const res = await getRoleListAPI()
@@ -168,9 +184,17 @@ export default {
       this.dialogVisible = false
       // 重置表单
       this.$refs.addForm.resetFields()
+      Object.assign(this.addForm, {
+        name: '',
+        userName: '',
+        phonenumber: '',
+        status: 1,
+        roleId: null
+      })
     },
     addEmployee() {
       this.dialogVisible = true
+      this.title = '添加员工'
     },
     indexMethod(index) {
       return (this.params.page - 1) * this.params.pageSize + index + 1

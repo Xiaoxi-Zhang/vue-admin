@@ -39,3 +39,17 @@ export function delEmployeeAPI(id) {
     method: 'DELETE'
   })
 }
+
+/**
+ * 更编辑员工信息
+ * @export
+ * @param {*} data
+ * @returns
+ */
+export function updateEmployeeAPI(data) {
+  return request({
+    url: '/park/sys/user',
+    method: 'PUT',
+    data
+  })
+}
