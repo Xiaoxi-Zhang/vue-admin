@@ -27,7 +27,7 @@
           <template #default="scope">
             <el-button size="mini" type="text" @click="editEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEmployee(scope.row.id)">删除</el-button>
-            <el-button size="mini" type="text">重置密码</el-button>
+            <el-button size="mini" type="text" @click="resetEmployeePwd(scope.row.id)">重置密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { getEmployeeListAPI, addEmployeeAPI, delEmployeeAPI, updateEmployeeAPI } from '@/api/employee'
+import { getEmployeeListAPI, addEmployeeAPI, delEmployeeAPI, updateEmployeeAPI, resetEmployeePwdAPI } from '@/api/employee'
 import { getRoleListAPI } from '@/api/system'
 
 export default {
@@ -128,6 +128,20 @@ export default {
     this.getEmployeeList()
   },
   methods: {
+    resetEmployeePwd(id) {
+      this.$confirm('确定将密码重置为123456吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        // console.log('id:', id, 'type:', typeof id)
+        await resetEmployeePwdAPI({
+          id: String(id)
+        })
+        this.$message.success('密码重置成功')
+        this.getEmployeeList()
+      })
+    },
     editEmployee(row) {
       this.dialogVisible = true
       this.title = '编辑员工'
@@ -160,20 +174,23 @@ export default {
         this.$message.info('已取消删除')
       })
     },
-    async confirmAdd() {
+    confirmAdd() {
       this.$refs.addForm.validate(async(valid) => {
         if (!valid) return
+        // console.log('校验通过后this.addForm:', this.addForm)
         if (this.addForm.id) {
-          console.log('this.addForm:', this.addForm)
+          // console.log('编辑this.addForm:', this.addForm)
+          delete this.addForm.createTime
           await updateEmployeeAPI(this.addForm)
           this.$message.success('编辑成功')
         } else {
+          // console.log('添加this.addForm:', this.addForm)
           await addEmployeeAPI(this.addForm)
           this.$message.success('添加成功')
         }
+        this.getEmployeeList()
+        this.closeDialog()
       })
-      this.getEmployeeList()
-      this.closeDialog()
     },
     async openDialog() {
       const res = await getRoleListAPI()

@@ -53,3 +53,17 @@ export function updateEmployeeAPI(data) {
     data
   })
 }
+
+/**
+ * 重置员工密码
+ * @export
+ * @param {*} data
+ * @returns
+ */
+export function resetEmployeePwdAPI(data) {
+  return request({
+    url: '/park/sys/user/resetPwd',
+    method: 'PUT',
+    data
+  })
+}
